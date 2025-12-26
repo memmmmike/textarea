@@ -41,6 +41,12 @@
   addEventListener('DOMContentLoaded', load)
   addEventListener('hashchange', load)
   addEventListener('load', () => new MutationObserver(save).observe(article, {attributeFilter: ['style']}))
+  addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      e.preventDefault()
+      download()
+    }
+  })
 
   async function load() {
     try {
@@ -108,5 +114,39 @@
       clearTimeout(timer)
       timer = setTimeout(() => fn(...args), ms)
     }
+  }
+
+  async function download() {
+    updateTitle()
+    const doc = document.documentElement.cloneNode(true)
+    doc.querySelectorAll('script').forEach(s => s.remove())
+    doc.querySelector('article').removeAttribute('contenteditable')
+    const html = '<!DOCTYPE html>\n' + doc.outerHTML
+
+    if ('showSaveFilePicker' in window) {
+      try {
+        const handle = await showSaveFilePicker({
+          suggestedName: document.title + '.html',
+          types: [{
+            description: 'HTML file',
+            accept: {'text/html': ['.html']},
+          }],
+        })
+        const writable = await handle.createWritable()
+        await writable.write(html)
+        await writable.close()
+        return
+      } catch (e) {
+        if (e.name === 'AbortError') return
+      }
+    }
+
+    const blob = new Blob([html], {type: 'text/html'})
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = document.title + '.html'
+    a.click()
+    URL.revokeObjectURL(url)
   }
 </script>
