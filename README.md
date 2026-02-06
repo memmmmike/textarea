@@ -29,7 +29,7 @@ A _minimalist_ text editor that lives entirely in your browser and stores everyt
 
 ## Related
 
-- [wiki](https://github.com/antonmedv/wiki) – a single file Wiki engine based on textarea.my
+- [Number](https://numbr.dev) – my another website, same as textarea, only support calculations like `1 USD in EUR =`.
 
 ---
 
